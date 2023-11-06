@@ -36,8 +36,8 @@ app.use("*", (req, res, next) => {
 app.use(globalErrorHandler);
 
 const server = app.listen(PORT, () => {
+  console.log(`Server running on Port ${PORT}`);
   connectDb();
-  // console.log(`Server running on port ${PORT}`);
 });
 
 process.on("unhandledRejection", (err) => {
