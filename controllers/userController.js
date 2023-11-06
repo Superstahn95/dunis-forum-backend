@@ -5,7 +5,7 @@ const cloudinary = require("../utils/cloudinary");
 
 exports.getAllUsers = asyncErrorHandler(async (req, res, next) => {
   //will only return normal users
-  const users = await User.find();
+  const users = await User.find().select("-password");
   res.status(200).json({
     status: "success",
     users,

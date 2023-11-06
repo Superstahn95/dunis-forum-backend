@@ -10,10 +10,11 @@ exports.registerUser = asyncErrorHandler(async (req, res, next) => {
   const user = new User(req.body);
   await user.save();
   const token = generateToken(user._id);
+  const { password, ...userWithoutPassword } = user;
   res.status(200).json({
     status: "success",
     message: "user created",
-    user,
+    user: userWithoutPassword,
     token,
   });
 });
@@ -39,7 +40,7 @@ exports.loginUser = asyncErrorHandler(async (req, res, next) => {
     return next(err);
   }
   const token = generateToken(user._id);
-
+  delete user.password;
   res.status(200).json({
     status: "success",
     user,
@@ -81,9 +82,10 @@ exports.reAuthenticate = asyncErrorHandler(async (req, res, next) => {
       const err = new CustomError("User not found", 404);
       return next(err);
     }
+    const { password, ...userWithoutPassword } = user;
     res.status(200).json({
       status: "success",
-      user,
+      user: userWithoutPassword,
     });
   });
 });
@@ -179,5 +181,5 @@ exports.checkUserRole = (roles) => {
 };
 
 const generateToken = (id) => {
-  return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: 200 });
+  return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: "3d" });
 };

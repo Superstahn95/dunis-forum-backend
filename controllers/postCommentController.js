@@ -26,7 +26,10 @@ exports.createComment = asyncErrorHandler(async (req, res, next) => {
   res.status(201).json({
     status: "success",
     message: "Comment has been made",
-    savedComment: await savedComment.populate("author"), //to be removed because we do not need to return the comment
+    savedComment: await savedComment.populate({
+      path: "author",
+      select: "-password",
+    }), //to be removed because we do not need to return the comment
   });
 });
 

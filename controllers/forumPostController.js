@@ -7,14 +7,13 @@ exports.getAllForumPosts = asyncErrorHandler(async (req, res, next) => {
   const { pageNo, limit } = req.query;
 
   const forumPosts = await ForumPost.find()
-    .populate("author")
     .sort({ createdAt: -1 })
     .skip(parseInt(pageNo) * parseInt(limit))
     .limit(parseInt(limit))
-    .populate("author")
+    .populate({ path: "author", select: "-password" })
     .populate({
       path: "forumComments",
-      populate: { path: "author" }, // Populate the 'author' field in 'forumComments'
+      populate: { path: "author", select: "-password" }, // Populate the 'author' field in 'forumComments'
     });
 
   const postCount = await ForumPost.countDocuments();
@@ -28,10 +27,10 @@ exports.getAllForumPosts = asyncErrorHandler(async (req, res, next) => {
 exports.getForumPost = asyncErrorHandler(async (req, res, next) => {
   const { id } = req.params;
   const forumPost = await ForumPost.findById(id)
-    .populate("author")
+    .populate({ path: "author", select: "-password" })
     .populate({
       path: "forumComments",
-      populate: { path: "author" }, // Populate the 'author' field in 'forumComments'
+      populate: { path: "author", select: "-password" }, // Populate the 'author' field in 'forumComments'
     });
   if (!forumPost) {
     const err = new CustomError("Post not found", 404);
@@ -55,7 +54,10 @@ exports.createForumPost = asyncErrorHandler(async (req, res, next) => {
   res.status(201).json({
     status: "success",
     message: "Post has been created",
-    forumPost: await forumPost.populate("author"),
+    forumPost: await forumPost.populate({
+      path: "author",
+      select: "-password",
+    }),
   });
 });
 

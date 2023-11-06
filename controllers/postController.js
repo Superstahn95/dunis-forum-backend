@@ -17,6 +17,7 @@ exports.getAllPosts = asyncErrorHandler(async (req, res, next) => {
       populate: {
         path: "author",
         model: "User", // The model to populate
+        select: "-password",
       },
     });
 
@@ -35,6 +36,7 @@ exports.getPost = asyncErrorHandler(async (req, res, next) => {
     populate: {
       path: "author",
       model: "User",
+      select: "-password",
     },
   });
 
