@@ -4,6 +4,10 @@ const cors = require("./middlewares/cors");
 const connectDb = require("./config/db");
 const globalErrorHandler = require("./controllers/errorController");
 
+process.on("uncaughtException", (err) => {
+  process.exit(1);
+});
+
 const app = express();
 dotenv.config();
 const PORT = process.env.PORT || 5500;
@@ -31,7 +35,14 @@ app.use("*", (req, res, next) => {
 //global error handler
 app.use(globalErrorHandler);
 
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   connectDb();
   // console.log(`Server running on port ${PORT}`);
+});
+
+process.on("unhandledRejection", (err) => {
+  console.log(err);
+  server.close(() => {
+    process.exit(1);
+  });
 });
