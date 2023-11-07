@@ -41,7 +41,6 @@ const server = app.listen(PORT, () => {
 });
 
 process.on("unhandledRejection", (err) => {
-  console.log(err);
   server.close(() => {
     process.exit(1);
   });

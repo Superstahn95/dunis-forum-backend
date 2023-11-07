@@ -10,7 +10,7 @@ exports.registerUser = asyncErrorHandler(async (req, res, next) => {
   const user = new User(req.body);
   await user.save();
   const token = generateToken(user._id);
-  const { password, ...userWithoutPassword } = user;
+  const { password, ...userWithoutPassword } = user.toObject();
   res.status(200).json({
     status: "success",
     message: "user created",
@@ -40,10 +40,12 @@ exports.loginUser = asyncErrorHandler(async (req, res, next) => {
     return next(err);
   }
   const token = generateToken(user._id);
-  delete user.password;
+  const userWithoutPassword = user.toObject();
+  delete userWithoutPassword.password;
+
   res.status(200).json({
     status: "success",
-    user,
+    user: userWithoutPassword,
     token,
   });
 });
@@ -82,7 +84,7 @@ exports.reAuthenticate = asyncErrorHandler(async (req, res, next) => {
       const err = new CustomError("User not found", 404);
       return next(err);
     }
-    const { password, ...userWithoutPassword } = user;
+    const { password, ...userWithoutPassword } = user.toObject();
     res.status(200).json({
       status: "success",
       user: userWithoutPassword,
@@ -166,11 +168,7 @@ exports.checkUserRole = (roles) => {
   //if i want to grant permission to different roles, i can modify the parameter to "...role".
   //and then i can say if role.includes(req.user.role || userRole)
   return (req, res, next) => {
-    console.log(req.user);
     const userRole = req.user.role;
-    console.log(userRole);
-    console.log(roles);
-    console.log(roles.includes(userRole));
     if (!roles.includes(userRole)) {
       const err = new CustomError("Not authorized", 403);
       return next(err);
